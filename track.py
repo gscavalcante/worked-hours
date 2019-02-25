@@ -1,15 +1,20 @@
 import re
+import os
 import sys
 import csv
 import argparse
 from datetime import datetime
 
-FILE_NAME = "worked_hours.csv"
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M"
 FIELD_NAMES = ["date", "start", "end"]
+file_name = ""
 
 def init():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    global file_name
+    file_name = dir_path + "/worked_hours.csv"
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-t", "--time",
@@ -41,14 +46,14 @@ def validate_hour(hour):
         sys.exit(1)
 
 def create_csv_file():
-    with open(FILE_NAME, "w", newline="") as csvfile:
+    with open(file_name, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=FIELD_NAMES)
 
         writer.writeheader()
 
 def get_last_date():
     try:
-        with open(FILE_NAME, "r") as csvfile:
+        with open(file_name, "r") as csvfile:
             lines = csvfile.readlines()
 
             if not lines:
@@ -66,17 +71,17 @@ def get_last_date():
         return None
 
 def check_out(hour):
-    r = csv.reader(open(FILE_NAME))
+    r = csv.reader(open(file_name))
     lines = list(r)
     lines[-1][2] = hour
     
-    writer = csv.writer(open(FILE_NAME, "w"))
+    writer = csv.writer(open(file_name, "w"))
     writer.writerows(lines)
 
     print("Check-out done with success at", hour)
 
 def check_in(hour, date):
-    with open(FILE_NAME, "a", newline="") as csvfile:
+    with open(file_name, "a", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=FIELD_NAMES)
 
         writer.writerow({"date": date, "start": hour})
