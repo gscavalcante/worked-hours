@@ -20,15 +20,15 @@ def init():
         help="Date to check the information"
     )
     parser.add_argument("--detailed",
-        help="Show the lines used to calculate the ammount",
+        help="Show the lines used to calculate the amount",
         action="store_true"
     )
     parser.add_argument("-t", "--today",
-        help="Show the ammount of hours at the current day",
+        help="Show the amount of hours at the current day",
         action="store_true"
     )
     parser.add_argument("-y", "--yesterday",
-        help="Show the ammount of hours at the last day",
+        help="Show the amount of hours at the last day",
         action="store_true"
     )
 
@@ -76,7 +76,7 @@ def check_day(day, detailed):
 
     if total is .0:
         print("There isn\'t any checkout on the day {}. \
-            \nYou need to finish your work hour before check the ammount.".
+            \nYou need to finish your work hour before check the amount.".
             format(day))
     else:
         print(total)
