@@ -1,11 +1,55 @@
 import os
 import csv
-import sys
+import argparse
 from datetime import datetime, timedelta
 
 file_name = ""
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M"
+
+def init():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    global file_name
+    file_name = dir_path + "/worked_hours.csv"
+
+    parser = argparse.ArgumentParser(
+        description="Get the data processed to be easier to understand"
+    )
+
+    parser.add_argument("-d", "--date",
+        help="Date to check the information"
+    )
+    parser.add_argument("--detailed",
+        help="Show the lines used to calculate the ammount",
+        action="store_true"
+    )
+    parser.add_argument("-t", "--today",
+        help="Show the ammount of hours at the current day",
+        action="store_true"
+    )
+    parser.add_argument("-y", "--yesterday",
+        help="Show the ammount of hours at the last day",
+        action="store_true"
+    )
+
+    args = parser.parse_args()
+    date = parse_date(args)
+    
+    check_day(date, args.detailed)
+
+def parse_date(args):
+    date = None
+
+    if args.date:
+        date = args.date
+    elif args.yesterday:
+        yesterday_date = datetime.now() - timedelta(1)
+        date = yesterday_date.strftime(DATE_FORMAT)
+    else:
+        today_date = datetime.now()
+        date = today_date.strftime(DATE_FORMAT)
+
+    return date
 
 def time_to_decimal(time):
     hour, minute, second = str(time).split(":")
@@ -14,7 +58,7 @@ def time_to_decimal(time):
 
     return round(float(hour) + minute, 2)
 
-def check_day(day):
+def check_day(day, detailed):
     total = .0
 
     with open(file_name, "r", newline="") as worked_hours:
@@ -27,29 +71,14 @@ def check_day(day):
 
                 total += time_to_decimal(end_time - start_time)
 
+                if detailed:
+                    print(row)
+
     if total is .0:
-        print ("There isn\'t any checkout on this day.",
-            "You need to finish your work hour before check the ammount.")
+        print("There isn\'t any checkout on the day {}. \
+            \nYou need to finish your work hour before check the ammount.".
+            format(day))
     else:
         print(total)
-
-def init():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    global file_name
-    file_name = dir_path + "/worked_hours.csv"
-
-    option = sys.argv[1]
-
-    if option == "-d" or option == "--date":
-        check_day(sys.argv[2])
-    elif option == "today":
-        today_date = datetime.now()
-        check_day(today_date.strftime(DATE_FORMAT))
-    elif option == "yesterday":
-        yesterday_date = datetime.now() - timedelta(1)
-        check_day(yesterday_date.strftime(DATE_FORMAT))
-    else:
-        print("Error: Unknown option {}".format(option))
-        exit(1)
 
 init()
